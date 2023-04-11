@@ -1,7 +1,6 @@
 # Dxworks new-project
 
-This project was generated using the `dxworks-template-node-ts` repository template. To customize the project, replace
-all `new-project` instances with the name of the new project.
+This project wa
 
 ## Installation
 
