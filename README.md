@@ -1,4 +1,4 @@
-# Dxworks new-project
+# Dxworks github-miner-2
 
 This project was generated using the `dxworks-template-node-ts` repository template. To customize the project, replace
 all `new-project` instances with the name of the new project.
