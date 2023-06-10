@@ -1,11 +1,4 @@
 import { graphql } from "@octokit/graphql";
-import { PullRequest } from "../types/PullRequest";
-import { PrBranch } from "../types/PrBranch";
-import { Commit } from "../types/Commit";
-import { Repository } from "../types/Repository";
-import { Review } from "../types/Review";
-import { ReviewRequest } from "../types/ReviewRequest";
-import { User } from "../types/User";
 
 type Config = {
   owner: string;
@@ -26,7 +19,7 @@ export class GithubExtractor {
     });
   }
 
-  async getPRs(cursor: number | null) {
+  async getPullRequests(cursor: number | null) {
     const query = `
       query ($owner: String!, $repo: String!, $cursor: String) {
         repository(owner: $owner, name: $repo) {
@@ -53,10 +46,15 @@ export class GithubExtractor {
                 nodes {
                   login
                   url
-                  avatarUrl
-                  ... on User {                    
-                        email              
-                      } 
+                  avatarUrl                                     
+                  email                               
+                }
+              }
+              labels (first: 100) {
+                totalCount
+                nodes {
+                  name
+                  description
                 }
               }
               mergedBy {
@@ -192,5 +190,83 @@ export class GithubExtractor {
     const repositoryInfo = data.repository;
 
     return { repositoryInfo };
+  }
+
+  async getIssues(cursor: number | null) {
+    const query = `
+      query ($owner: String!, $repo: String!, $cursor: String) {
+        repository(owner: $owner, name: $repo) {
+          issues(first: 100, after: $cursor) {
+            nodes {
+              number
+              title
+              body
+              state
+              createdAt
+              updatedAt
+              closedAt
+              author {
+                login
+                url
+                avatarUrl
+                ... on User {                    
+                      email              
+                    }
+              }
+              assignees(first: 100) {
+                totalCount
+                nodes {
+                  login
+                  url
+                  avatarUrl                                    
+                  email                          
+                }
+              }
+              labels (first: 100) {
+                totalCount
+                nodes {
+                  name
+                  description
+                }
+              }
+              comments (first: 100) {
+                totalCount
+                nodes {
+                  author {
+                    login
+                    url
+                    avatarUrl
+                    ... on User {                    
+                          email              
+                        }
+                  }
+                  createdAt
+                  updatedAt
+                  body
+                  url
+                }
+              }
+            }
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+          }
+        }
+      }
+    `;
+
+    const variables = {
+      owner: this.config.owner,
+      repo: this.config.repository,
+      cursor: cursor ? `${cursor}` : undefined,
+    };
+
+    const data = await this.graphql<any>(query, variables);
+    const issues = data.repository.issues.nodes;
+    const hasNextPage = data.repository.issues.pageInfo.hasNextPage;
+    const endCursor = data.repository.issues.pageInfo.endCursor;
+
+    return { issues, hasNextPage, endCursor };
   }
 }

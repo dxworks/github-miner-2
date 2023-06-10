@@ -7,6 +7,7 @@ import { Repository } from "../types/Repository";
 import { Review } from "../types/Review";
 import { ReviewRequest } from "../types/ReviewRequest";
 import { User } from "../types/User";
+import { Label } from "../types/Label";
 
 export class PullRequestProcessor {
   private extractor: GithubExtractor;
@@ -21,7 +22,7 @@ export class PullRequestProcessor {
     let cursor = null;
 
     while (hasNextPage) {
-      const prs: any = await this.extractor.getPRs(cursor);
+      const prs: any = await this.extractor.getPullRequests(cursor);
       allPRs = allPRs.concat(prs);
       console.log(`Processed ${prs.prs.length} PRs ${prs.endCursor}`);
 
@@ -45,7 +46,7 @@ export class PullRequestProcessor {
       JSON.stringify(allPRs[0].prs.map((pr: any) => this.mapPullRequest(pr)))
     );
 
-    console.log(`Stored ${allPRs.length} pull requests in prs.json`);
+    console.log(`Stored ${allPRs.length} pull requests in pullRequests.json`);
   }
 
   private mapPullRequest(pr: any): PullRequest {
@@ -65,6 +66,7 @@ export class PullRequestProcessor {
       assignees: pr.assignees.nodes.map((assignee: any) =>
         this.mapUser(assignee)
       ),
+      labels: pr.labels.nodes.map((label: any) => this.mapLabel(label)),
       mergedBy: this.mapUser(pr.mergedBy),
       reviews: pr.reviews.nodes.map((review: any) => this.mapReview(review)),
       reviewRequests: pr.reviewRequests.nodes.map((reviewRequest: any) =>
@@ -131,6 +133,15 @@ export class PullRequestProcessor {
       url: user.url,
       avatarUrl: user.avatarUrl,
       email: user.email,
+    };
+  }
+
+  private mapLabel(label: any): Label | undefined {
+    if (!label) return;
+
+    return {
+      name: label.name,
+      description: label.description,
     };
   }
 }

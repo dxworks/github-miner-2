@@ -18,6 +18,7 @@ export type PullRequest = {
   state?: string;
   createdBy?: User;
   assignees?: User[];
+  labels?: string[];
   mergedBy?: User;
   reviews?: Review[];
   reviewRequests?: ReviewRequest[];

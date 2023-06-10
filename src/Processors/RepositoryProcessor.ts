@@ -25,7 +25,7 @@ export class RepositoryProcessor {
       JSON.stringify(this.mapRepository(info.repositoryInfo))
     );
 
-    console.log(`Stored ${info.name} repository info`);
+    console.log(`Stored repository info in repositoryInfo.js`);
   }
 
   private mapRepository(repository: any): Repository | null {
