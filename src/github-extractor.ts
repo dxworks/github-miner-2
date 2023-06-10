@@ -1,10 +1,10 @@
-import { graphql } from '@octokit/graphql';
+import { graphql } from "@octokit/graphql";
 
 type Config = {
-    owner: string;
-    repository: string;
-    tokens: string[];
-  }
+  owner: string;
+  repository: string;
+  tokens: string[];
+};
 
 export class GithubExtractor {
   private config: Config;
@@ -28,6 +28,33 @@ export class GithubExtractor {
               number
               title
               state
+              createdAt
+              updatedAt
+              mergedAt
+              mergedBy {
+                login
+              }
+              author {
+                login
+              }
+              files {
+                totalCount
+              }
+              comments {
+                totalCount
+              }
+              reviewRequests {
+                totalCount
+              }
+              reviews(first: 100) {
+                totalCount
+                nodes {
+                  author {
+                    login
+                  }
+                  state
+                }
+              }
             }
             pageInfo {
               hasNextPage
@@ -46,6 +73,7 @@ export class GithubExtractor {
 
     const data = await this.graphql<any>(query, variables);
     const prs = data.repository.pullRequests.nodes;
+    console.log(prs);
     const hasNextPage = data.repository.pullRequests.pageInfo.hasNextPage;
     const endCursor = data.repository.pullRequests.pageInfo.endCursor;
 
