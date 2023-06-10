@@ -1,11 +1,11 @@
 import { graphql } from "@octokit/graphql";
-import { PullRequest } from "./types/PullRequest";
-import { PrBranch } from "./types/PrBranch";
-import { Commit } from "./types/Commit";
-import { Repository } from "./types/Repository";
-import { Review } from "./types/Review";
-import { ReviewRequest } from "./types/ReviewRequest";
-import { User } from "./types/User";
+import { PullRequest } from "../types/PullRequest";
+import { PrBranch } from "../types/PrBranch";
+import { Commit } from "../types/Commit";
+import { Repository } from "../types/Repository";
+import { Review } from "../types/Review";
+import { ReviewRequest } from "../types/ReviewRequest";
+import { User } from "../types/User";
 
 type Config = {
   owner: string;
@@ -156,5 +156,41 @@ export class GithubExtractor {
     const endCursor = data.repository.pullRequests.pageInfo.endCursor;
 
     return { prs, hasNextPage, endCursor };
+  }
+
+  async getRepositoryInfo() {
+    const query = `
+      query ($owner: String!, $repo: String!) {
+        repository(owner: $owner, name: $repo) {
+          id
+          name
+          resourcePath
+          owner {
+            login
+            url
+            avatarUrl
+          }
+          createdAt
+          updatedAt
+          languages (first: 100) {
+            totalCount
+            nodes {
+              name
+            }
+          }
+          description
+        }
+      }
+    `;
+
+    const variables = {
+      owner: this.config.owner,
+      repo: this.config.repository,
+    };
+
+    const data = await this.graphql<any>(query, variables);
+    const repositoryInfo = data.repository;
+
+    return { repositoryInfo };
   }
 }

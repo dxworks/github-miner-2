@@ -1,11 +1,12 @@
-import { User } from "./User";
+import { RepositoryOwner } from "./RepositoryOwner";
 
 export type Repository = {
+  id?: string;
   name?: string;
-  fullName?: string;
-  owner?: User;
+  fullPath?: string;
+  owner?: RepositoryOwner;
   createdAt?: string;
   updatedAt?: string;
-  language?: string;
+  languages?: string[];
   description?: string;
 };

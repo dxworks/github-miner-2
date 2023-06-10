@@ -1,6 +1,7 @@
 ### File outputs
-prs.json
 src/config.yml
+exports/
+configs/
 
 ### Node template
 # Logs

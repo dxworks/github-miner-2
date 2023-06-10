@@ -1,12 +1,12 @@
-import * as fs from "fs";
-import { GithubExtractor } from "./GithubExtractor";
-import { Commit } from "./types/Commit";
-import { PrBranch } from "./types/PrBranch";
-import { PullRequest } from "./types/PullRequest";
-import { Repository } from "./types/Repository";
-import { Review } from "./types/Review";
-import { ReviewRequest } from "./types/ReviewRequest";
-import { User } from "./types/User";
+import * as fs from "fs-extra";
+import { GithubExtractor } from "../Extractors/GithubExtractor";
+import { Commit } from "../types/Commit";
+import { PrBranch } from "../types/PrBranch";
+import { PullRequest } from "../types/PullRequest";
+import { Repository } from "../types/Repository";
+import { Review } from "../types/Review";
+import { ReviewRequest } from "../types/ReviewRequest";
+import { User } from "../types/User";
 
 export class PullRequestProcessor {
   private extractor: GithubExtractor;
@@ -34,10 +34,17 @@ export class PullRequestProcessor {
       if (!prs.hasNextPage) break;
     }
 
+    const folderPath = "exports";
+    const filePath = `${folderPath}/pullRequests.json`;
+
+    // Create the "exports" folder if it doesn't exist
+    await fs.ensureDir(folderPath);
+
     fs.writeFileSync(
-      "prs.json",
+      filePath,
       JSON.stringify(allPRs[0].prs.map((pr: any) => this.mapPullRequest(pr)))
     );
+
     console.log(`Stored ${allPRs.length} pull requests in prs.json`);
   }
 
@@ -124,18 +131,6 @@ export class PullRequestProcessor {
       url: user.url,
       avatarUrl: user.avatarUrl,
       email: user.email,
-    };
-  }
-
-  private mapRepository(repository: any): Repository | null {
-    return {
-      name: repository.name,
-      fullName: repository.fullName,
-      owner: this.mapUser(repository.owner),
-      createdAt: repository.createdAt,
-      updatedAt: repository.updatedAt,
-      language: repository.language,
-      description: repository.description,
     };
   }
 }

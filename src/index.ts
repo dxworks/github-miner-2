@@ -1,10 +1,13 @@
 import * as yaml from "yamljs";
-import { GithubExtractor } from "./GithubExtractor";
-import { PullRequestProcessor } from "./PullRequestProcessor";
+import { GithubExtractor } from "./Extractors/GithubExtractor";
+import { PullRequestProcessor } from "./Processors/PullRequestProcessor";
+import { RepositoryProcessor } from "./Processors/RepositoryProcessor";
 
-const config = yaml.load("src/config.yml");
+const config = yaml.load("configs/config.yml");
 
 const extractor = new GithubExtractor(config);
-const processor = new PullRequestProcessor(extractor);
+const pullRequestProcessor = new PullRequestProcessor(extractor);
+const repositoryProcessor = new RepositoryProcessor(extractor);
 
-processor.processPRs();
+pullRequestProcessor.processPRs();
+repositoryProcessor.processRepositoryInfo();
