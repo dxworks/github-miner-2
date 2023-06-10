@@ -1,4 +1,4 @@
-import { Branch } from "./Branch";
+import { PrBranch } from "./PrBranch";
 import { Commit } from "./Commit";
 import { Review } from "./Review";
 import { ReviewRequest } from "./ReviewRequest";
@@ -8,8 +8,8 @@ export type PullRequest = {
   number?: number;
   title?: string;
   body?: string;
-  head?: Branch;
-  base?: Branch;
+  head?: PrBranch;
+  base?: PrBranch;
   commits?: Commit[];
   createdAt?: string;
   updatedAt?: string;
@@ -17,7 +17,7 @@ export type PullRequest = {
   closedAt?: string;
   state?: string;
   createdBy?: User;
-  assignee?: User;
+  assignees?: User[];
   mergedBy?: User;
   reviews?: Review[];
   reviewRequests?: ReviewRequest[];
