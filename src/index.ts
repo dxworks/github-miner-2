@@ -1,10 +1,10 @@
 import * as yaml from "yamljs";
-import { GithubExtractor } from "./github-extractor";
-import { PRsProcessor } from "./pr-processor";
+import { GithubExtractor } from "./GithubExtractor";
+import { PullRequestProcessor } from "./PullRequestProcessor";
 
 const config = yaml.load("src/config.yml");
 
 const extractor = new GithubExtractor(config);
-const processor = new PRsProcessor(extractor);
+const processor = new PullRequestProcessor(extractor);
 
 processor.processPRs();
