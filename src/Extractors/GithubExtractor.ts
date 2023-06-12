@@ -1,4 +1,5 @@
-import { graphql } from "@octokit/graphql";
+import { Octokit } from "@octokit/core";
+import { throttling } from "@octokit/plugin-throttling";
 
 type Config = {
   owner: string;
@@ -8,15 +9,59 @@ type Config = {
 
 export class GithubExtractor {
   private config: Config;
-  private graphql: typeof graphql;
+  private octokitInstances: Octokit[];
 
   constructor(config: Config) {
     this.config = config;
-    this.graphql = graphql.defaults({
-      headers: {
-        authorization: `token ${this.config.tokens[0]}`,
-      },
-    });
+    this.octokitInstances = [];
+    const accessTokens = config.tokens;
+
+    for (const token of accessTokens) {
+      const MyOctokit = Octokit.plugin(throttling);
+      const octokit = new MyOctokit({
+        auth: token,
+        throttle: {
+          onRateLimit: async (
+            retryAfter,
+            options: any,
+            octokit,
+            retryCount
+          ) => {
+            octokit.log.warn(
+              `Request quota exhausted for request ${options.method} ${options.url}`
+            );
+
+            if (options.request.retryCount === 0) {
+              // Retry after a delay
+              await this.retryAfterDelay(retryAfter);
+            }
+          },
+          onSecondaryRateLimit: async (retryAfter, options: any, octokit) => {
+            // does not retry, only logs a warning
+            octokit.log.warn(
+              `SecondaryRateLimit detected for request ${options.method} ${options.url}`
+            );
+
+            if (options.request.retryCount === 0) {
+              // Retry after a delay
+              await this.retryAfterDelay(retryAfter);
+            }
+          },
+        },
+      });
+
+      // Retry on error statuses
+      octokit.hook.error("request", async (error, options) => {
+        if (options.request.retryCount === 0) {
+          // Retry after a delay
+          await this.retryAfterDelay();
+          return octokit.request(options);
+        }
+        throw error;
+      });
+
+      this.octokitInstances.push(octokit);
+    }
   }
 
   async getPullRequests(cursor: number | null) {
@@ -148,7 +193,8 @@ export class GithubExtractor {
       cursor: cursor ? `${cursor}` : undefined,
     };
 
-    const data = await this.graphql<any>(query, variables);
+    const octokit = this.getRandomOctokitInstance();
+    const data = await octokit.graphql<any>(query, variables);
     const prs = data.repository.pullRequests.nodes;
     const hasNextPage = data.repository.pullRequests.pageInfo.hasNextPage;
     const endCursor = data.repository.pullRequests.pageInfo.endCursor;
@@ -186,7 +232,8 @@ export class GithubExtractor {
       repo: this.config.repository,
     };
 
-    const data = await this.graphql<any>(query, variables);
+    const octokit = this.getRandomOctokitInstance();
+    const data = await octokit.graphql<any>(query, variables);
     const repositoryInfo = data.repository;
 
     return { repositoryInfo };
@@ -262,11 +309,30 @@ export class GithubExtractor {
       cursor: cursor ? `${cursor}` : undefined,
     };
 
-    const data = await this.graphql<any>(query, variables);
+    const octokit = this.getRandomOctokitInstance();
+    const data = await octokit.graphql<any>(query, variables);
     const issues = data.repository.issues.nodes;
     const hasNextPage = data.repository.issues.pageInfo.hasNextPage;
     const endCursor = data.repository.issues.pageInfo.endCursor;
 
     return { issues, hasNextPage, endCursor };
+  }
+
+  private getRandomOctokitInstance() {
+    return this.octokitInstances[
+      Math.floor(Math.random() * this.octokitInstances.length)
+    ];
+  }
+
+  private retryAfterDelay(delay: number = 60) {
+    return new Promise((resolve) => {
+      setTimeout(resolve, delay * 1000);
+    });
+  }
+
+  private shouldRetryOnErrorStatus(status: number) {
+    // Add additional error status codes to retry if needed
+    const retryErrorStatusCodes = [502, 503, 504];
+    return retryErrorStatusCodes.includes(status);
   }
 }

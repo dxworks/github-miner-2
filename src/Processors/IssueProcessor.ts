@@ -20,19 +20,25 @@ export class IssueProcessor {
     while (hasNextPage) {
       const issues: any = await this.extractor.getIssues(cursor);
       allIssues = allIssues.concat(issues);
+      await this.writeToFile(allIssues);
+
       console.log(
         `Processed ${issues.issues.length} issues ${issues.endCursor}`
       );
 
-      const lastPR = issues.issues[issues.issues.length - 1];
+      const lastIssue = issues.issues[issues.issues.length - 1];
 
-      if (lastPR) {
+      if (lastIssue) {
         cursor = issues.endCursor;
       }
 
       if (!issues.hasNextPage) break;
     }
 
+    console.log(`Stored ${allIssues.length} issues in issues.json`);
+  }
+
+  private async writeToFile(allIssues: any) {
     const folderPath = "exports";
     const filePath = `${folderPath}/issues.json`;
 
@@ -42,14 +48,16 @@ export class IssueProcessor {
     fs.writeFileSync(
       filePath,
       JSON.stringify(
-        allIssues[0].issues.map((issue: any) => this.mapIssues(issue))
+        allIssues
+          .reduce((acc: any, el: any) => {
+            return [...acc, ...el.issues];
+          }, [])
+          .map((issue: any) => this.mapIssue(issue))
       )
     );
-
-    console.log(`Stored ${allIssues.length} issues in issues.json`);
   }
 
-  private mapIssues(issue: any): Issue | undefined {
+  private mapIssue(issue: any): Issue | undefined {
     if (!issue) return;
 
     return {

@@ -24,6 +24,8 @@ export class PullRequestProcessor {
     while (hasNextPage) {
       const prs: any = await this.extractor.getPullRequests(cursor);
       allPRs = allPRs.concat(prs);
+      await this.writeToFile(allPRs);
+
       console.log(`Processed ${prs.prs.length} PRs ${prs.endCursor}`);
 
       const lastPR = prs.prs[prs.prs.length - 1];
@@ -35,6 +37,10 @@ export class PullRequestProcessor {
       if (!prs.hasNextPage) break;
     }
 
+    console.log(`Stored ${allPRs.length} pull requests in pullRequests.json`);
+  }
+
+  private async writeToFile(allPRs: any) {
     const folderPath = "exports";
     const filePath = `${folderPath}/pullRequests.json`;
 
@@ -43,10 +49,14 @@ export class PullRequestProcessor {
 
     fs.writeFileSync(
       filePath,
-      JSON.stringify(allPRs[0].prs.map((pr: any) => this.mapPullRequest(pr)))
+      JSON.stringify(
+        allPRs
+          .reduce((acc: any, el: any) => {
+            return [...acc, ...el.prs];
+          }, [])
+          .map((issue: any) => this.mapPullRequest(issue))
+      )
     );
-
-    console.log(`Stored ${allPRs.length} pull requests in pullRequests.json`);
   }
 
   private mapPullRequest(pr: any): PullRequest {
@@ -108,7 +118,11 @@ export class PullRequestProcessor {
     };
   }
 
-  private mapReviewRequest(request: any): ReviewRequest {
+  private mapReviewRequest(request: any): ReviewRequest | undefined {
+    if (!request) return;
+
+    if (!request.requestedReviewer) return;
+
     if (request.requestedReviewer.__typename === "User") {
       return {
         requestedReviewer: this.mapUser(request.requestedReviewer),
