@@ -12,5 +12,5 @@ const repositoryProcessor = new RepositoryProcessor(extractor);
 const issueProcessor = new IssueProcessor(extractor);
 
 pullRequestProcessor.processPRs();
-// repositoryProcessor.processRepositoryInfo();
-// issueProcessor.processIssues();
+repositoryProcessor.processRepositoryInfo();
+issueProcessor.processIssues();
