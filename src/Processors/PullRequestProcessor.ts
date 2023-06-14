@@ -3,11 +3,11 @@ import { GithubExtractor } from "../Extractors/GithubExtractor";
 import { Commit } from "../types/Commit";
 import { PrBranch } from "../types/PrBranch";
 import { PullRequest } from "../types/PullRequest";
-import { Repository } from "../types/Repository";
 import { Review } from "../types/Review";
 import { ReviewRequest } from "../types/ReviewRequest";
 import { User } from "../types/User";
 import { Label } from "../types/Label";
+import { Comment } from "../types/Comment";
 
 export class PullRequestProcessor {
   private extractor: GithubExtractor;
@@ -76,6 +76,9 @@ export class PullRequestProcessor {
       assignees: pr.assignees.nodes.map((assignee: any) =>
         this.mapUser(assignee)
       ),
+      comments: pr.comments.nodes.map((comment: any) =>
+        this.mapComment(comment)
+      ),
       labels: pr.labels.nodes.map((label: any) => this.mapLabel(label)),
       mergedBy: this.mapUser(pr.mergedBy),
       reviews: pr.reviews.nodes.map((review: any) => this.mapReview(review)),
@@ -115,6 +118,9 @@ export class PullRequestProcessor {
       user: this.mapUser(review.author),
       body: review.body,
       submittedAt: review.submittedAt,
+      comments: review.comments.nodes.map((comment: any) =>
+        this.mapComment(comment)
+      ),
     };
   }
 
@@ -137,6 +143,18 @@ export class PullRequestProcessor {
     } else {
       return {};
     }
+  }
+
+  private mapComment(comment: any): Comment | undefined {
+    if (!comment) return;
+
+    return {
+      author: this.mapUser(comment.author),
+      createdAt: comment.createdAt,
+      updatedAt: comment.updatedAt,
+      body: comment.body,
+      url: comment.url,
+    };
   }
 
   private mapUser(user: any): User | undefined {

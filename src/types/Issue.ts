@@ -1,4 +1,4 @@
-import { IssueComment } from "./IssueComment";
+import { Comment } from "./Comment";
 import { Label } from "./Label";
 import { User } from "./User";
 
@@ -11,7 +11,7 @@ export type Issue = {
   updatedAt?: string;
   closedAt?: string;
   createdBy?: User;
-  comments?: IssueComment[];
+  comments?: Comment[];
   assignees?: User[];
   labels?: Label[];
 };

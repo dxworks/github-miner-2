@@ -1,6 +1,6 @@
 import { User } from "./User";
 
-export type IssueComment = {
+export type Comment = {
   author?: User;
   createdAt?: string;
   updatedAt?: string;

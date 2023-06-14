@@ -3,6 +3,7 @@ import { Commit } from "./Commit";
 import { Review } from "./Review";
 import { ReviewRequest } from "./ReviewRequest";
 import { User } from "./User";
+import { Comment } from "./Comment";
 
 export type PullRequest = {
   number?: number;
@@ -17,6 +18,7 @@ export type PullRequest = {
   closedAt?: string;
   state?: string;
   createdBy?: User;
+  comments?: Comment[];
   assignees?: User[];
   labels?: string[];
   mergedBy?: User;

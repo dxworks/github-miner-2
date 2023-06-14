@@ -3,7 +3,7 @@ import * as fs from "fs-extra";
 import { Issue } from "../types/Issue";
 import { User } from "../types/User";
 import { Label } from "../types/Label";
-import { IssueComment } from "../types/IssueComment";
+import { Comment } from "../types/Comment";
 
 export class IssueProcessor {
   private extractor: GithubExtractor;
@@ -79,7 +79,7 @@ export class IssueProcessor {
     };
   }
 
-  private mapIssueComment(comment: any): IssueComment | undefined {
+  private mapIssueComment(comment: any): Comment | undefined {
     if (!comment) return;
 
     return {

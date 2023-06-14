@@ -143,6 +143,23 @@ export class GithubExtractor {
                   }
                 }
               }
+              comments (first: 100) {
+                totalCount
+                nodes {
+                  author {
+                    login
+                    url
+                    avatarUrl
+                    ... on User {                    
+                          email              
+                        }
+                  }
+                  createdAt
+                  updatedAt
+                  body
+                  url
+                }
+              }
               reviews(first: 100) {
                 totalCount
                 nodes {
@@ -157,6 +174,23 @@ export class GithubExtractor {
                   }
                   body
                   submittedAt
+                  comments(first: 40) {
+                    totalCount                
+                    nodes {
+                      author {
+                        login
+                        url
+                        avatarUrl
+                        ... on User {                    
+                              email              
+                            }
+                      }
+                      createdAt
+                      updatedAt
+                      body
+                      url
+                    }
+                  }              
                 }
               }
               reviewRequests(first: 100) {
