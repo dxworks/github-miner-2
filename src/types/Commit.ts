@@ -6,4 +6,5 @@ export type Commit = {
   message?: string;
   url?: string;
   date?: string;
+  changedFiles?: number;
 };

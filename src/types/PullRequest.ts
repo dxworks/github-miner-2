@@ -11,6 +11,7 @@ export type PullRequest = {
   body?: string;
   head?: PrBranch;
   base?: PrBranch;
+  changedFiles?: number;
   commits?: Commit[];
   createdAt?: string;
   updatedAt?: string;

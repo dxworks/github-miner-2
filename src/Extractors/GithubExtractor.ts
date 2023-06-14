@@ -71,146 +71,6 @@ export class GithubExtractor {
           pullRequests(first: 100, states: [OPEN, CLOSED, MERGED], after: $cursor) {
             nodes {
               number
-              title
-              body
-              state
-              createdAt
-              updatedAt
-              mergedAt
-              closedAt
-              author {
-                login
-                url
-                avatarUrl
-                ... on User {                    
-                      email              
-                    }
-              }
-              assignees(first: 100) {
-                totalCount
-                nodes {
-                  login
-                  url
-                  avatarUrl                                     
-                  email                               
-                }
-              }
-              labels (first: 100) {
-                totalCount
-                nodes {
-                  name
-                  description
-                }
-              }
-              mergedBy {
-                login
-                url
-                avatarUrl
-                ... on User {                    
-                      email              
-                    }               
-              }
-              headRef {
-                name
-                target{
-                  oid
-                  commitUrl             
-                }
-              }
-              baseRef {
-                name
-                target{
-                  oid
-                  commitUrl              
-                }
-              }
-              commits(first:100) {
-                totalCount
-                nodes {
-                  url
-                  commit {
-                    oid
-                    message
-                    authoredDate
-                    author {
-                      user {
-                        login
-                        url
-                        avatarUrl
-                        email
-                      }
-                    }
-                  }
-                }
-              }
-              comments (first: 100) {
-                totalCount
-                nodes {
-                  author {
-                    login
-                    url
-                    avatarUrl
-                    ... on User {                    
-                          email              
-                        }
-                  }
-                  createdAt
-                  updatedAt
-                  body
-                  url
-                }
-              }
-              reviews(first: 100) {
-                totalCount
-                nodes {
-                  state
-                  author {
-                    login
-                    url
-                    avatarUrl
-                    ... on User {                    
-                      email              
-                    }
-                  }
-                  body
-                  submittedAt
-                  comments(first: 40) {
-                    totalCount                
-                    nodes {
-                      author {
-                        login
-                        url
-                        avatarUrl
-                        ... on User {                    
-                              email              
-                            }
-                      }
-                      createdAt
-                      updatedAt
-                      body
-                      url
-                    }
-                  }              
-                }
-              }
-              reviewRequests(first: 100) {
-                totalCount
-                nodes {
-                  requestedReviewer {
-                    __typename
-                    ... on User {
-                      login
-                      url
-                      email
-                      avatarUrl
-                    }
-                    ... on Team {
-                      name
-                      slug
-                    }
-                  }
-                }
-              }
             }
             pageInfo {
               hasNextPage
@@ -230,10 +90,186 @@ export class GithubExtractor {
     const octokit = this.getRandomOctokitInstance();
     const data = await octokit.graphql<any>(query, variables);
     const prs = data.repository.pullRequests.nodes;
+
+    const prsDetailsPromises = prs.map(async (pr: { number: number }) => {
+      const pullRequestNumber = pr.number;
+      const pullRequestDetails = await this.getPullRequestDetails(
+        pullRequestNumber
+      );
+      return pullRequestDetails;
+    });
+
+    const pullRequests = await Promise.all(prsDetailsPromises);
+
     const hasNextPage = data.repository.pullRequests.pageInfo.hasNextPage;
     const endCursor = data.repository.pullRequests.pageInfo.endCursor;
 
-    return { prs, hasNextPage, endCursor };
+    return { pullRequests, hasNextPage, endCursor };
+  }
+
+  async getPullRequestDetails(pullRequestNumber: number) {
+    const query = `query ($owner: String!, $repo: String!, $number: Int!) {
+        repository(owner: $owner, name: $repo) {
+          pullRequest(number: $number) {          
+            number
+            title
+            body
+            state
+            createdAt
+            updatedAt
+            mergedAt
+            closedAt
+            author {
+              login
+              url
+              avatarUrl
+              ... on User {                    
+                    email              
+                  }
+            }
+            assignees(first: 100) {
+              totalCount
+              nodes {
+                login
+                url
+                avatarUrl                                     
+                email                               
+              }
+            }
+            labels (first: 100) {
+              totalCount
+              nodes {
+                name
+                description
+              }
+            }
+            mergedBy {
+              login
+              url
+              avatarUrl
+              ... on User {                    
+                    email              
+                  }               
+            }
+            headRef {
+              name
+              target{
+                oid
+                commitUrl             
+              }
+            }
+            baseRef {
+              name
+              target{
+                oid
+                commitUrl              
+              }
+            }
+            changedFiles
+            commits(first:100) {
+              totalCount
+              nodes {
+                url              
+                commit {
+                  oid
+                  message
+                  changedFilesIfAvailable
+                  authoredDate        
+                  author {
+                    user {
+                      login
+                      url
+                      avatarUrl
+                      email
+                    }
+                  }              
+                }
+              }
+            }
+            comments (first: 100) {
+              totalCount
+              nodes {
+                author {
+                  login
+                  url
+                  avatarUrl
+                  ... on User {                    
+                        email              
+                      }
+                }
+                createdAt
+                updatedAt
+                body
+                url
+              }
+            }
+            reviews(first: 100) {
+              totalCount
+              nodes {
+                state
+                author {
+                  login
+                  url
+                  avatarUrl
+                  ... on User {                    
+                    email              
+                  }
+                }
+                body
+                submittedAt
+                comments(first: 100) {
+                  totalCount                
+                  nodes {
+                    author {
+                      login
+                      url
+                      avatarUrl
+                      ... on User {                    
+                            email              
+                          }
+                    }
+                    createdAt
+                    updatedAt
+                    body
+                    url
+                  }
+                }              
+              }
+            }
+            reviewRequests(first: 100) {
+              totalCount
+              nodes {
+                requestedReviewer {
+                  __typename
+                  ... on User {
+                    login
+                    url
+                    email
+                    avatarUrl
+                  }
+                  ... on Team {
+                    name
+                    slug
+                  }
+                }
+              }
+            }                 
+          }
+        }
+      }
+    `;
+
+    const variables = {
+      owner: this.config.owner,
+      repo: this.config.repository,
+      number: pullRequestNumber,
+    };
+
+    const octokit = this.getRandomOctokitInstance();
+    const data = await octokit.graphql<any>(query, variables);
+    const pullRequestDetails = data.repository.pullRequest;
+
+    return pullRequestDetails;
   }
 
   async getRepositoryInfo() {

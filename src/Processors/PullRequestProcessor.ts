@@ -23,12 +23,13 @@ export class PullRequestProcessor {
 
     while (hasNextPage) {
       const prs: any = await this.extractor.getPullRequests(cursor);
-      allPRs = allPRs.concat(prs);
+      allPRs = allPRs.concat(prs.pullRequests);
+
       await this.writeToFile(allPRs);
 
-      console.log(`Processed ${prs.prs.length} PRs ${prs.endCursor}`);
+      console.log(`Processed ${prs.pullRequests.length} PRs ${prs.endCursor}`);
 
-      const lastPR = prs.prs[prs.prs.length - 1];
+      const lastPR = prs.pullRequests[prs.pullRequests.length - 1];
 
       if (lastPR) {
         cursor = prs.endCursor;
@@ -49,13 +50,7 @@ export class PullRequestProcessor {
 
     fs.writeFileSync(
       filePath,
-      JSON.stringify(
-        allPRs
-          .reduce((acc: any, el: any) => {
-            return [...acc, ...el.prs];
-          }, [])
-          .map((issue: any) => this.mapPullRequest(issue))
-      )
+      JSON.stringify(allPRs.map((issue: any) => this.mapPullRequest(issue)))
     );
   }
 
@@ -66,6 +61,7 @@ export class PullRequestProcessor {
       body: pr.body,
       head: this.mapPrBranch(pr.headRef),
       base: this.mapPrBranch(pr.baseRef),
+      changedFiles: pr.changedFiles,
       commits: pr.commits.nodes.map((commit: any) => this.mapCommit(commit)),
       state: pr.state,
       createdAt: pr.createdAt,
@@ -106,6 +102,7 @@ export class PullRequestProcessor {
       sha: commit.commit.oid,
       message: commit.commit.message,
       author: this.mapUser(commit.commit.author.user),
+      changedFiles: commit.commit.changedFilesIfAvailable,
       date: commit.commit.authoredDate,
     };
   }
