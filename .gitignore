@@ -1,7 +1,6 @@
 ### File outputs
 src/config.yml
 exports/
-configs/
 
 ### Node template
 # Logs
