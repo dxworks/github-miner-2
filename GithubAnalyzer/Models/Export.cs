@@ -28,6 +28,10 @@
 
         public string? AverageMergeTime { get; set; }
 
+        public IDictionary<int, int>? MergedPrsPerMonthInTheLastYear { get; set; }
+        
+        public IDictionary<int, int>? CreatedPrsPerMonthInTheLastYear { get; set; }
+
         public double? AverageNumberOfChangedFilesPerPullRequest { get; set; }
 
         public double? AverageNumberOfCommitsPerPullRequest { get; set; }
@@ -61,5 +65,6 @@
         public double? AverageNumberOfAssigneesPerIssue { get; set; }
 
         public double? AverageNumberOfLabelsPerIssue { get; set; }
+
     }
 }

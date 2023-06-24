@@ -152,6 +152,51 @@ var averagePullRequestComplexity = pullRequests
 
 export.AveragePullRequestComplexity = Math.Round(averagePullRequestComplexity, 2);
 
+// numarul de PR-uri merged in ultimele 12 luni, in fiecare luna
+IDictionary<int, int> mergedPrsForEachMonth = new Dictionary<int, int>();
+for (int i = 1; i <= 12; i++)
+{
+    int month = DateTime.Now.Month - i;
+    int year = DateTime.Now.Year;
+
+    if (month < 1)
+    {
+        month = 12 - Math.Abs(month);
+        year--;
+    }
+    
+    var mergedPrsPerMonth = pullRequests
+        .Where(pr =>
+            pr.MergedAt.HasValue &&
+            pr.MergedAt.Value.Month.Equals(month) && 
+            pr.MergedAt.Value.Year.Equals(year))
+        .ToList().Count;
+    mergedPrsForEachMonth.Add(month, mergedPrsPerMonth);
+}
+
+export.MergedPrsPerMonthInTheLastYear = mergedPrsForEachMonth;
+
+// numarul de PR-uri create in ultimele 12 luni, in fiecare luna
+IDictionary<int, int> createdPrsForEachMonth = new Dictionary<int, int>();
+for (int i = 1; i <= 12; i++)
+{
+    int month = DateTime.Now.Month - i;
+    int year = DateTime.Now.Year;
+
+    if (month < 1)
+    {
+        month = 12 - Math.Abs(month);
+        year--;
+    }
+    
+    var createdPrsPerMonth = pullRequests
+        .Where(pr =>
+            pr.CreatedAt.HasValue &&
+            pr.CreatedAt.Value.Month.Equals(month) && 
+            pr.CreatedAt.Value.Year.Equals(year))
+        .ToList().Count;
+    createdPrsForEachMonth.Add(month, createdPrsPerMonth);
+}
 
 // ISSUE METRICS
 
