@@ -51,7 +51,7 @@ To use GitHub Miner, follow these steps:
 
 1. Generate a GitHub personal access token.
 
-2. Complete the necessary information in the configuration file [config.yaml](github-miner-2/github-miner/configs/config.yaml). In order to specify the targeted repository for data extraction, provide its name and owner.
+2. Complete the necessary information in the configuration file [config.yaml](github-miner/configs/config.yaml). In order to specify the targeted repository for data extraction, provide its name and owner.
 
 3. Start the data extraction proccess by running in the terminal:
 
@@ -59,7 +59,7 @@ To use GitHub Miner, follow these steps:
 npm run start
 ```
 
-4. After the data extraction process is completed, a new folder named `exports` is created, containing three files: `issues.json`, `pullRequests.json` and `repositoryInfo.json`. Move or copy these files to the [GithubAnalyzer](github-miner-2/GithubAnalyzer) folder.
+4. After the data extraction process is completed, a new folder named `exports` is created, containing three files: `issues.json`, `pullRequests.json` and `repositoryInfo.json`. Move or copy these files to the [GithubAnalyzer](GithubAnalyzer) folder.
 
 5. Start the data analysis process by running in the terminal:
 
@@ -68,7 +68,7 @@ cd ../GithubAnalyzer
 dotnet run ./GithubAnalyzer.csproj
 ```
 
-6. The final result file is created in the [GithubAnalyzer](github-miner-2/GithubAnalyzer) folder, in `JSON` and `CSV` formats.
+6. The final result file is created in the [GithubAnalyzer](GithubAnalyzer) folder, in `JSON` and `CSV` formats.
 
 ## Contributing
 
