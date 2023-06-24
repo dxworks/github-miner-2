@@ -198,6 +198,8 @@ for (int i = 1; i <= 12; i++)
     createdPrsForEachMonth.Add(month, createdPrsPerMonth);
 }
 
+export.CreatedPrsPerMonthInTheLastYear = createdPrsForEachMonth; 
+
 // ISSUE METRICS
 
 // total number of issues
