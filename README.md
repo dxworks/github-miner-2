@@ -51,7 +51,7 @@ To use GitHub Miner, follow these steps:
 
 1. Generate a GitHub personal access token.
 
-2. Complete the necessary information in the configuration file [config.yaml](github-miner/configs/config.yaml). In order to specify the targeted repository for data extraction, provide its name and owner.
+2. Complete the necessary information in the [configuration file](github-miner/configs/config.yml). In order to specify the targeted repository for data extraction, provide its name and owner.
 
 3. Start the data extraction proccess by running in the terminal:
 
