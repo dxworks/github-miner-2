@@ -1,6 +1,6 @@
 # GitHub Miner
 
-GitHub Miner is a tool designed to scrape and analyze GitHub data to provide insightful statistics and information about repository metadat, pull requests, issues andf team collaboration. Here's a quick overview of how to set up and use the tool. This project was generated using the `dxworks-template-node-ts` repository template.
+GitHub Miner is a tool designed to scrape and analyze GitHub data to provide insightful statistics and information about repository metadata, pull requests, issues andf team collaboration. Here's a quick overview of how to set up and use the tool. This project was generated using the `dxworks-template-node-ts` repository template.
 
 ## Table of Contents
 
