@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="DxWorks.ScriptBee.Plugin.Api" Version="1.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="issues.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -17,6 +21,10 @@
     <None Update="repositoryInfo.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="ScriptBee.Integration\" />
   </ItemGroup>
 
 </Project>

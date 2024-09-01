@@ -38,7 +38,9 @@ export class PullRequestProcessor {
       if (!prs.hasNextPage) break;
     }
 
-    console.log(`Stored ${allPRs.length} pull requests in pullRequests.json`);
+    console.log(
+      `Stored ${allPRs.length} pull requests in exports/pullRequests.json`
+    );
   }
 
   private async writeToFile(allPRs: any) {

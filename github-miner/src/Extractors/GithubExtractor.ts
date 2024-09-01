@@ -1,11 +1,6 @@
 import { Octokit } from "@octokit/core";
 import { throttling } from "@octokit/plugin-throttling";
-
-type Config = {
-  owner: string;
-  repository: string;
-  tokens: string[];
-};
+import { Config } from "./Config";
 
 export class GithubExtractor {
   private config: Config;

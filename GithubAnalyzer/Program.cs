@@ -12,6 +12,7 @@ var options = new JsonSerializerOptions
     PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
     WriteIndented = true
 };
+/*
 var issuesBytes = File.ReadAllBytes("issues.json");
 var issues = JsonSerializer.Deserialize<List<Issue>>(issuesBytes, options);
 
@@ -20,6 +21,14 @@ var pullRequests = JsonSerializer.Deserialize<List<PullRequest>>(pullRequestsByt
 
 var repositoryBytes = File.ReadAllBytes("repositoryInfo.json");
 var repository = JsonSerializer.Deserialize<Repository>(repositoryBytes, options);
+*/
+
+var projectBytes = File.ReadAllBytes("results.json");
+var project = JsonSerializer.Deserialize<GitHubProject>(projectBytes, options);
+
+var repository = project.RepositoryInfo;
+var issues = project.Issues;
+var pullRequests = project.PullRequests;
 
 var export = new Export();
 
